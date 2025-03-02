@@ -1,0 +1,28 @@
+{
+    "entities": {
+        "playerPaddle": {
+            "components": {
+                "position": {"x": 50, "y": 250},
+                "movement": {"speed": 400},
+                "size": {"w": 20, "h": 100},
+                "paddle": {"isAI": false}
+            }
+        },
+        "aiPaddle": {
+            "components": {
+                "position": {"x": 730, "y": 250},
+                "movement": {"speed": 400},
+                "size": {"w": 20, "h": 100},
+                "paddle": {"isAI": true}
+            }
+        },
+        "ball": {
+            "components": {
+                "position": {"x": 400, "y": 300},
+                "movement": {"speed": 0},
+                "size": {"w": 15, "h": 15},
+                "ball": {}
+            }
+        }
+    }
+} 
