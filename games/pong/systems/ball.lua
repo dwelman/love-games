@@ -7,6 +7,8 @@ local BallSystem = Concord.system({
 function BallSystem:init(world)
     self.world = world
     self.resetBall = true
+    -- Get reference to the sound system
+    self.soundSystem = nil
 end
 
 function BallSystem:resetBallPosition(ball)
@@ -17,6 +19,16 @@ function BallSystem:resetBallPosition(ball)
 end
 
 function BallSystem:update(dt)
+    -- Lazy initialization of sound system reference
+    if not self.soundSystem and self.world.__systems then
+        for _, system in ipairs(self.world.__systems) do
+            if system.paddleHit and system.scoreSound then
+                self.soundSystem = system
+                break
+            end
+        end
+    end
+    
     for _, ball in ipairs(self.pool) do
         if self.resetBall then
             self:resetBallPosition(ball)
@@ -35,9 +47,17 @@ function BallSystem:update(dt)
         -- Score points and reset ball
         if ball.position.x < 0 then
             self.world:emit("score", "right")
+            -- Play score sound
+            if self.soundSystem then
+                self.soundSystem:scoreSound()
+            end
             self.resetBall = true
         elseif ball.position.x > 800 then
             self.world:emit("score", "left")
+            -- Play score sound
+            if self.soundSystem then
+                self.soundSystem:scoreSound()
+            end
             self.resetBall = true
         end
     end

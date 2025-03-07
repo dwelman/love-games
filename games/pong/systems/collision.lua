@@ -40,7 +40,23 @@ local CollisionSystem = Concord.system({
     balls = {"position", "movement", "ball", "size"}
 })
 
+function CollisionSystem:init(world)
+    self.world = world
+    -- Get reference to the sound system
+    self.soundSystem = nil
+end
+
 function CollisionSystem:update(dt)
+    -- Lazy initialization of sound system reference
+    if not self.soundSystem and self.world.__systems then
+        for _, system in ipairs(self.world.__systems) do
+            if system.paddleHit and system.wallHit then
+                self.soundSystem = system
+                break
+            end
+        end
+    end
+    
     for _, ball in ipairs(self.balls) do
         local nextX = ball.position.x + ball.movement.dx * dt
         local nextY = ball.position.y + ball.movement.dy * dt
@@ -55,6 +71,11 @@ function CollisionSystem:update(dt)
                 paddle.position.x, paddle.position.y, paddle.size.w, paddle.size.h
             ) then
                 resolveCollision(ball, paddle)
+                
+                -- Play paddle hit sound
+                if self.soundSystem then
+                    self.soundSystem:paddleHit(ball)
+                end
                 break
             end
         end
@@ -66,9 +87,17 @@ function CollisionSystem:update(dt)
         if ball.position.y < 0 then
             ball.position.y = 0
             ball.movement.dy = -ball.movement.dy
+            -- Play wall hit sound
+            if self.soundSystem then
+                self.soundSystem:wallHit()
+            end
         elseif ball.position.y + ball.size.h > 600 then
             ball.position.y = 600 - ball.size.h
             ball.movement.dy = -ball.movement.dy
+            -- Play wall hit sound
+            if self.soundSystem then
+                self.soundSystem:wallHit()
+            end
         end
     end
 end

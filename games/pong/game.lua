@@ -33,6 +33,10 @@ function PongGame:init()
         self.world:addSystem(system, self.world)
     end
 
+    -- Create a sound entity to initialize the sound system
+    local soundEntity = Concord.entity(self.world)
+    soundEntity:give("sound")
+    
     -- Load entities from configuration
     local entity_loader = require 'utils.entity_loader'
     self.entities = entity_loader.load_entities(self.world, "games/pong/pong.json")
