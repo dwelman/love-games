@@ -7,11 +7,27 @@ local SoundSystem = Concord.system({
 function SoundSystem:init(world)
     self.world = world
     self.sounds = {}
+    self.debugEnabled = false
+    
+    -- Find debug system if it exists
+    if world.__systems then
+        for _, system in ipairs(world.__systems) do
+            if system.isDebugEnabled then
+                self.debugSystem = system
+                self.debugEnabled = system:isDebugEnabled()
+                break
+            end
+        end
+    end
     
     -- Load all sound files from the assets/sounds directory
     self:loadSounds()
     
     print("Sound system initialized with " .. self:countSounds() .. " sounds")
+end
+
+function SoundSystem:debugStateChanged(isEnabled)
+    self.debugEnabled = isEnabled
 end
 
 function SoundSystem:countSounds()
@@ -57,7 +73,10 @@ function SoundSystem:loadSounds()
         end
         
         if love.filesystem.getInfo(filePath, "file") and hasValidExtension then
-            print("Loading sound: " .. filePath)
+            if self.debugEnabled then
+                print("Loading sound: " .. filePath)
+            end
+            
             local success, source = pcall(function()
                 return love.audio.newSource(filePath, "static")
             end)
@@ -65,7 +84,9 @@ function SoundSystem:loadSounds()
             if success then
                 local soundName = file:gsub("%.%w+$", "") -- Remove file extension
                 self.sounds[soundName] = source
-                print("Loaded sound: " .. soundName .. " from " .. filePath)
+                if self.debugEnabled then
+                    print("Loaded sound: " .. soundName .. " from " .. filePath)
+                end
             else
                 print("Failed to load sound: " .. filePath .. " - " .. tostring(source))
             end
@@ -83,7 +104,9 @@ function SoundSystem:loadSounds()
         
         if success then
             self.sounds["pong"] = source
-            print("Loaded sound: pong from " .. pongFilePath)
+            if self.debugEnabled then
+                print("Loaded sound: pong from " .. pongFilePath)
+            end
         else
             print("Failed to load sound: " .. pongFilePath .. " - " .. tostring(source))
         end
@@ -98,7 +121,9 @@ end
 function SoundSystem:playSound(name, pitch, volume)
     local sound = self.sounds[name]
     if not sound then
-        print("Warning: Sound not found: " .. name)
+        if self.debugEnabled then
+            print("Warning: Sound not found: " .. name)
+        end
         return
     end
     
@@ -108,7 +133,9 @@ function SoundSystem:playSound(name, pitch, volume)
     end)
     
     if not success then
-        print("Failed to clone sound: " .. name .. " - " .. tostring(clone))
+        if self.debugEnabled then
+            print("Failed to clone sound: " .. name .. " - " .. tostring(clone))
+        end
         return
     end
     
@@ -127,9 +154,13 @@ function SoundSystem:playSound(name, pitch, volume)
     end)
     
     if success then
-        print("Playing sound: " .. name .. (pitch and " with pitch " .. pitch or ""))
+        if self.debugEnabled then
+            print("Playing sound: " .. name .. (pitch and " with pitch " .. pitch or ""))
+        end
     else
-        print("Failed to play sound: " .. name .. " - " .. tostring(err))
+        if self.debugEnabled then
+            print("Failed to play sound: " .. name .. " - " .. tostring(err))
+        end
     end
 end
 
@@ -152,7 +183,9 @@ function SoundSystem:paddleHit(ball)
     elseif self.sounds["pong"] then
         self:playSound("pong", pitch)
     else
-        print("Warning: No sound available for paddle hit")
+        if self.debugEnabled then
+            print("Warning: No sound available for paddle hit")
+        end
     end
 end
 
@@ -164,7 +197,9 @@ function SoundSystem:wallHit()
     elseif self.sounds["pong"] then
         self:playSound("pong", 0.8)
     else
-        print("Warning: No sound available for wall hit")
+        if self.debugEnabled then
+            print("Warning: No sound available for wall hit")
+        end
     end
 end
 
@@ -176,7 +211,9 @@ function SoundSystem:scoreSound()
     elseif self.sounds["pong"] then
         self:playSound("pong", 0.5)
     else
-        print("Warning: No sound available for score")
+        if self.debugEnabled then
+            print("Warning: No sound available for score")
+        end
     end
 end
 

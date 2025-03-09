@@ -27,9 +27,13 @@ function PongGame:init()
 
     -- Create game world
     self.world = Concord.world()
+    
+    -- Store reference to the game in the world
+    self.world.game = self
 
     -- Initialize all systems
-    for _, system in pairs(systems) do
+    for name, system in pairs(systems) do
+        print("Adding system: " .. name)
         self.world:addSystem(system, self.world)
     end
 
@@ -48,6 +52,11 @@ end
 
 function PongGame:draw()
     self.world:emit("draw")
+end
+
+function PongGame:keypressed(key)
+    -- Emit keypressed event to all systems
+    self.world:emit("keypressed", key)
 end
 
 function PongGame:quit()

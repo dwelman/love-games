@@ -4,6 +4,26 @@ local RenderSystem = Concord.system({
     entities = {"position", "size"}
 })
 
+function RenderSystem:init(world)
+    self.world = world
+    self.debugEnabled = false
+    
+    -- Find debug system if it exists
+    if world.__systems then
+        for _, system in ipairs(world.__systems) do
+            if system.isDebugEnabled then
+                self.debugSystem = system
+                self.debugEnabled = system:isDebugEnabled()
+                break
+            end
+        end
+    end
+end
+
+function RenderSystem:debugStateChanged(isEnabled)
+    self.debugEnabled = isEnabled
+end
+
 function RenderSystem:draw()
     -- Draw center line
     love.graphics.setColor(0.5, 0.5, 0.5)

@@ -41,8 +41,11 @@ end
 function love.keypressed(key)
     keysPressed[key] = true
     
+    -- Pass keypressed event to current game
+    if GameState.current_game then
+        GameState:keypressed(key)
     -- Direct handling of return key for menu
-    if not GameState.current_game and (key == 'return' or key == 'space') then
+    elseif key == 'return' or key == 'space' then
         local selected_game = Menu.games[Menu.selected]
         if selected_game then
             print("Loading game via direct key press: " .. selected_game)

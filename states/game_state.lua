@@ -46,6 +46,12 @@ function GameState:draw()
     end
 end
 
+function GameState:keypressed(key)
+    if self.current_game and self.current_game.keypressed then
+        self.current_game:keypressed(key)
+    end
+end
+
 function GameState:quit()
     if self.current_game and self.current_game.quit then
         self.current_game:quit()
